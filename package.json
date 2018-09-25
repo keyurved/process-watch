@@ -4,7 +4,9 @@
   "description": "Server for watching a process",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "client": "node client.js"
   },
   "repository": {
     "type": "git",
@@ -15,5 +17,12 @@
   "bugs": {
     "url": "https://github.com/keyurved/process-watch/issues"
   },
-  "homepage": "https://github.com/keyurved/process-watch#readme"
+  "homepage": "https://github.com/keyurved/process-watch#readme",
+  "dependencies": {
+    "child_process": "^1.0.2",
+    "command-line-args": "^5.0.2",
+    "express": "^4.16.3",
+    "express-longpoll": "0.0.4",
+    "jquery": "^3.3.1"
+  }
 }
