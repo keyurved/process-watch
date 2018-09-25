@@ -1,0 +1,19 @@
+{
+  "name": "process-watch",
+  "version": "1.0.0",
+  "description": "Server for watching a process",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/keyurved/process-watch.git"
+  },
+  "author": "Keyur Ved",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/keyurved/process-watch/issues"
+  },
+  "homepage": "https://github.com/keyurved/process-watch#readme"
+}
