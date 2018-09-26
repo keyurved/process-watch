@@ -14,5 +14,5 @@ npm install
 ```
 To run:
 ```
-npm start -- -x [process_name] [args...]
+npm start -- -x [cmd] [args...]
 ```
