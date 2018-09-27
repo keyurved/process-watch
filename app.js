@@ -1,61 +1,47 @@
 const express = require("express");
 const app = express();
-const expressWs = require('express-ws')(app);
-const commandLine = require('command-line-args');
-const { spawn } = require('child_process');
-const WebSocket = require('ws');
+const options = require("./getopts");
+const child = require("./subprocess")(options.processName, options.args);
+const server = require("http").createServer(app);
+const WebSocket = require("ws");
 
-const opts = [
-    { name: 'execute', alias: 'x', type: String, multiple: true }
-]
-const options = commandLine(opts);
+var buffer = [];
 
-const processName = options.execute.join(" ");
-const program = options.execute[0]
-var args = []
 
-if (options.execute.length > 1) {
-    args = options.execute.slice(1, options.execute.length);
-}
+const wss = new WebSocket.Server({ server });
+wss.on("connection", (ws) => {
 
-const sp = spawn(program, args, { shell: true });
-
-app.ws('/', (ws, req) => {
-    ws.on('message', (msg) => {
-        ws.send(JSON.stringify({ message: msg }));
-    });
-    sp.stdout.on('data', (data) => {
-        data = data.toString();
-        console.log(data);
-        try {
-            ws.send(JSON.stringify({ processName: processName, message: data, type: "info" }));
-        } catch (err) {
-            ;
+    child.sp.stdout.on("data", (data) => {
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ processName: child.processName, message: data.toString(), type: "info" }));
         }
     });
 
-    sp.stderr.on('data', (data) => {
-        data = data.toString();
-        console.log(data);
-        try {
-            ws.send(JSON.stringify({ processName: processName, message: data, type: "error" }));
-        } catch (err) {
-            ;
+    child.sp.stderr.on("data", (data) => {
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ processName: child.processName, message: data.toString(), type: "error" }));
         }
     });
 
-    sp.on('exit', (code) => {
-        try {
-            ws.send(JSON.stringify({ processName: processName, message: `Exited with code ${code}`, type: "exit" }));
-        } catch (err) {
-            ;
+
+    child.sp.on("exit", (code) => {
+        console.log("Exiting");
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ processName: child.processName, message: `Exited with code ${code}`, type: "exit" }));
         }
         process.exit(0);
-    })
-
+    });
 });
 
-const port = 3000
-app.listen(port, '0.0.0.0', () => {
-    console.log(`Listening on http://localhost:${port}/`);
+child.sp.stdout.on("data", (data) => {
+    data = data.toString();
+    console.log(data);
 });
+
+child.sp.stderr.on("data", (data) => {
+    data = data.toString();
+    console.log(data);
+});
+
+const port = 3000;
+server.listen(port, "0.0.0.0");
