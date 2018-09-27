@@ -26,6 +26,7 @@ app.ws('/', (ws, req) => {
     });
     sp.stdout.on('data', (data) => {
         data = data.toString();
+        console.log(data);
         try {
             ws.send(JSON.stringify({ processName: processName, message: data, type: "info" }));
         } catch (err) {
